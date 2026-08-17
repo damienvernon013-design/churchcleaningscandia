@@ -68,5 +68,5 @@ These are enforced by `QA.md` and must hold across every page:
 
 Deploy on Vercel (required for the `api/submit-quote.js` function to work). No build
 command needed — static files are served as-is and the function is auto-detected.
-Set `CRM_API_TOKEN` in the Vercel project's environment variables before the quote
-form will work in production.
+`CRM_API_TOKEN` is set in the Vercel project's environment variables — the quote form
+is live end-to-end in production.

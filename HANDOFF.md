@@ -1,6 +1,6 @@
 # HANDOFF — churchcleaningscandia.com
 
-## Status: Content-complete, QA-passing, ready for launch review
+## Status: Content-complete, QA-passing, quote form live end-to-end
 
 All 43 pages exist and pass the checklist in `QA.md`:
 
@@ -32,9 +32,13 @@ CRM-QM `PushLead` endpoint via a Vercel serverless proxy:
   `/api/submit-quote` instead of doing a plain HTML POST (which previously went
   nowhere — the forms had no real handler before this).
 - `api/README.md` — full integration docs.
-- **The Bearer token itself must be set manually** in the Vercel dashboard
-  (Settings → Environment Variables → `CRM_API_TOKEN`) before the form will work in
-  production. It is not, and must never be, in this repo.
+- **`CRM_API_TOKEN` is now set in Vercel** (Settings → Environment Variables). The quote
+  form is live end-to-end — submissions on `/`, `/contact/`, and `/request-a-quote/`
+  reach the CRM's `PushLead` endpoint for real. It is not, and must never be, in this
+  repo.
+- Verified before this update: all "quote"/"contact" CTAs across all 43 pages resolve
+  to one of the 3 wired form pages (or `tel:`/`mailto:`) — no orphaned duplicate forms,
+  no CTA bypasses the integration.
 - `GetFaq` (the other documented endpoint) is not yet wired to anything — the FAQ
   page still uses static content. See `api/README.md` for how to add it if needed.
 - **Requires deploying on Vercel** — the site was previously platform-agnostic static
@@ -62,7 +66,8 @@ attribution was captured. Now:
 - **Decide on real pricing and insurance figures.** Either supply actual `PRICE_LOW`/`PRICE_HIGH`/`INSURANCE_AMOUNT`/`BOND_AMOUNT`/`LICENSE_NO` values and insert them, or formally update `PLACEHOLDERS.md`/`QA.md` to reflect the "no hard numbers stated" approach as the final design decision (not a workaround). Right now the two docs contradict the actual site state.
 - **Meta description length** — QA item "Meta descriptions unique, 150–158 chars" is marked VERIFY, not checked yet.
 - **Mobile Lighthouse ≥ 90** — not measured; do after deployment.
-- No CI/build pipeline exists — this is intentionally a zero-build static site. If a deploy target (Netlify/Pages/etc.) is chosen, wire up hosting but no build command is needed.
+- **Do one live end-to-end submit test** on the deployed Vercel URL (fill out the form on `/request-a-quote/`, confirm it shows the success message, confirm the lead lands in the CRM with UTM data in `customer.notes`) — token is set, but no live submission has been run and observed on the CRM side yet.
+- No CI/build pipeline exists — this is intentionally a zero-build static site. Deploy target is now fixed to Vercel (see `CLAUDE.md`) because of `api/submit-quote.js`; no build command is needed.
 
 ## Repo
 
