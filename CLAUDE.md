@@ -8,6 +8,10 @@ Static HTML microsite for a church-cleaning service business serving Scandia, MN
 - Single shared stylesheet: `styles.css` (navy/gold palette, Georgia serif body — "Theme B: Warm & Local")
 - No JS framework, no build tooling, no package.json
 - `sitemap.xml` and `robots.txt` at root
+- One exception to "fully static": `api/submit-quote.js`, a Vercel serverless function
+  that proxies quote-form submissions to the CRM-QM `PushLead` API. See `api/README.md`.
+  The CRM Bearer token lives only in Vercel's `CRM_API_TOKEN` env var — never in the repo
+  or in client-side JS (`quote-form.js`).
 
 ## Structure
 
@@ -59,4 +63,7 @@ These are enforced by `QA.md` and must hold across every page:
 
 ## Deployment
 
-Static files — deploy by serving the directory root as-is (e.g. Netlify, GitHub Pages, Cloudflare Pages, S3+CDN). No build command needed.
+Deploy on Vercel (required for the `api/submit-quote.js` function to work). No build
+command needed — static files are served as-is and the function is auto-detected.
+Set `CRM_API_TOKEN` in the Vercel project's environment variables before the quote
+form will work in production.

@@ -18,6 +18,29 @@ All 43 pages exist and pass the checklist in `QA.md`:
 2. **Verified the pricing/insurance token resolution.** `PLACEHOLDERS.md` and `QA.md` both still say the site is "NOT READY TO LAUNCH" pending `{{PRICE_LOW}}`, `{{PRICE_HIGH}}`, `{{INSURANCE_AMOUNT}}`, `{{BOND_AMOUNT}}`, `{{LICENSE_NO}}`. In practice, none of those tokens remain in the HTML — the pricing and insured-and-bonded pages were rewritten to avoid stating hard numbers at all (e.g. "liability insurance with limits appropriate for commercial cleaning operations," certificate available on request). This reads fine as a page but **PLACEHOLDERS.md / QA.md are stale and should be updated or the real figures should be sourced** — see Outstanding below.
 3. Initialized git repo, added `CLAUDE.md`, committed, and pushed to `origin/main` (`https://github.com/damienvernon013-design/churchcleaningscandia.git`).
 
+## Contact/quote API integration (added this session)
+
+Wired the quote form (present on `/`, `/contact/`, `/request-a-quote/`) to the
+CRM-QM `PushLead` endpoint via a Vercel serverless proxy:
+
+- `api/submit-quote.js` — holds the CRM Bearer token server-side (`CRM_API_TOKEN`
+  env var, set in Vercel, never committed), validates input, maps the form fields
+  into the CRM's expected payload shape (industry code 23, zip defaulted to Scandia
+  MN 55073 since the form doesn't collect one), and forwards to
+  `thequotemasters.com/crm_api/api.php?action=push_lead`.
+- `quote-form.js` — client-side, intercepts the form submit and POSTs JSON to
+  `/api/submit-quote` instead of doing a plain HTML POST (which previously went
+  nowhere — the forms had no real handler before this).
+- `api/README.md` — full integration docs.
+- **The Bearer token itself must be set manually** in the Vercel dashboard
+  (Settings → Environment Variables → `CRM_API_TOKEN`) before the form will work in
+  production. It is not, and must never be, in this repo.
+- `GetFaq` (the other documented endpoint) is not yet wired to anything — the FAQ
+  page still uses static content. See `api/README.md` for how to add it if needed.
+- **Requires deploying on Vercel** — the site was previously platform-agnostic static
+  HTML; it now depends on Vercel serverless functions for the quote form to submit
+  anywhere. If a different host is chosen, the function needs porting.
+
 ## Outstanding / Next Steps
 
 - **Decide on real pricing and insurance figures.** Either supply actual `PRICE_LOW`/`PRICE_HIGH`/`INSURANCE_AMOUNT`/`BOND_AMOUNT`/`LICENSE_NO` values and insert them, or formally update `PLACEHOLDERS.md`/`QA.md` to reflect the "no hard numbers stated" approach as the final design decision (not a workaround). Right now the two docs contradict the actual site state.
