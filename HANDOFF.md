@@ -63,7 +63,7 @@ attribution was captured. Now:
 
 ## Outstanding / Next Steps
 
-- **Decide on real pricing and insurance figures.** Either supply actual `PRICE_LOW`/`PRICE_HIGH`/`INSURANCE_AMOUNT`/`BOND_AMOUNT`/`LICENSE_NO` values and insert them, or formally update `PLACEHOLDERS.md`/`QA.md` to reflect the "no hard numbers stated" approach as the final design decision (not a workaround). Right now the two docs contradict the actual site state.
+- ~~Decide on real pricing and insurance figures~~ — **resolved.** `PLACEHOLDERS.md` and `QA.md` were updated to document that omitting hard numbers (pricing, insurance/bond amounts, license number) is the deliberate final design decision, not an unresolved token. If the business later wants to publish real figures, `PLACEHOLDERS.md` explains exactly where to edit.
 - **Meta description length** — QA item "Meta descriptions unique, 150–158 chars" is marked VERIFY, not checked yet.
 - **Mobile Lighthouse ≥ 90** — not measured; do after deployment.
 - **Do one live end-to-end submit test** on the deployed Vercel URL (fill out the form on `/request-a-quote/`, confirm it shows the success message, confirm the lead lands in the CRM with UTM data in `customer.notes`) — token is set, but no live submission has been run and observed on the CRM side yet.

@@ -1,22 +1,36 @@
 # PLACEHOLDERS.md — churchcleaningscandia.com
 
-This file lists every token used in the site. A site is NOT READY TO LAUNCH while any {{token}} remains.
+This file originally tracked `{{token}}` placeholders used during the build. All of
+them have been resolved — none remain in the site (verified via
+`grep -rn "{{" --include="*.html" .` returning zero matches).
 
-## Tokens in Use
+## Original Tokens and How They Were Resolved
 
-| Token | Pages Using It | Value Needed |
+| Token | Pages Using It | Resolution |
 |---|---|---|
-| {{PRICE_LOW}} | /pricing/, /services/sanctuary-cleaning/, /services/fellowship-hall-cleaning/, /services/nursery-classroom-cleaning/, all 16 town×service pages, /resources/church-cleaning-cost/ | Low end of per-visit price range for this market (e.g. $95) |
-| {{PRICE_HIGH}} | same as above | High end of per-visit price range for this market (e.g. $285) |
-| {{INSURANCE_AMOUNT}} | /insured-and-bonded/ | General liability coverage amount (e.g. $1,000,000 per occurrence / $2,000,000 aggregate) |
-| {{BOND_AMOUNT}} | /insured-and-bonded/ | Janitorial bond amount (e.g. $10,000) |
-| {{LICENSE_NO}} | /insured-and-bonded/ | Insurance policy number or business licence number |
+| `{{PRICE_LOW}}` | /pricing/, /services/sanctuary-cleaning/, /services/fellowship-hall-cleaning/, /services/nursery-classroom-cleaning/, all 16 town×service pages, /resources/church-cleaning-cost/ | Rewritten to avoid stating a hard number. Copy explains that price depends on square footage, frequency and scope, and directs the visitor to request a written quote instead of publishing a range. |
+| `{{PRICE_HIGH}}` | same as above | Same resolution as above — no numeric range is published anywhere on the site. |
+| `{{INSURANCE_AMOUNT}}` | /insured-and-bonded/ | Rewritten to generic, non-numeric language: "liability insurance with limits appropriate for commercial cleaning operations." No dollar figure is stated. A certificate of insurance is offered on request instead. |
+| `{{BOND_AMOUNT}}` | /insured-and-bonded/ | Same approach — bonding is described qualitatively (covers theft/property damage by a crew member) without a dollar amount. |
+| `{{LICENSE_NO}}` | /insured-and-bonded/ | No policy/license number is published. Copy states that bond documentation and business registration are included with every written quote instead. |
 
 ## Status
 
-NOT READY TO LAUNCH — all tokens above must be replaced with real values before go-live.
+**RESOLVED — this was a deliberate content decision, not an oversight.** The business
+chose not to publish specific pricing, coverage amounts, or license/policy numbers on
+the public site. Instead, every page that would have carried one of these tokens
+routes the visitor to request a quote (for pricing) or offers documentation on request
+(for insurance/bonding credentials). This keeps the site accurate without requiring
+real dollar figures to be committed to a public, indexable page.
 
-## How to Replace
+## If Real Figures Become Available Later
 
-Search the entire site directory for `{{{{` and replace each instance with the correct value.
-After replacement, run the QA checklist to confirm no tokens remain.
+If the business later wants to publish real numbers (e.g. a price range, actual
+coverage limits, a policy number), search for the surrounding phrasing to find where
+to insert them:
+
+- Pricing: search for "request a quote" / "depends on" language in `pricing/index.html`, the 3 service pages, the 16 town×service pages, and `resources/church-cleaning-cost/index.html`.
+- Insurance/bonding: search for "limits appropriate for commercial cleaning operations" and "bond documentation" in `insured-and-bonded/index.html`.
+
+There is no `{{token}}` syntax left to find-and-replace — these are prose rewrites, so
+each page needs the relevant sentence edited directly.
