@@ -1,4 +1,39 @@
 (function () {
+  var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  var UTM_STORAGE_KEY = 'qm_utm_params';
+
+  function captureUtmParams() {
+    var params = new URLSearchParams(window.location.search);
+    var found = {};
+    var hasAny = false;
+
+    UTM_KEYS.forEach(function (key) {
+      var value = params.get(key);
+      if (value) {
+        found[key] = value.slice(0, 255);
+        hasAny = true;
+      }
+    });
+
+    if (hasAny) {
+      try {
+        sessionStorage.setItem(UTM_STORAGE_KEY, JSON.stringify(found));
+      } catch (e) {
+        // sessionStorage unavailable (private mode, etc.) — fall through, still usable this pageview
+      }
+      return found;
+    }
+
+    try {
+      var stored = sessionStorage.getItem(UTM_STORAGE_KEY);
+      if (stored) return JSON.parse(stored);
+    } catch (e) {
+      // ignore
+    }
+
+    return {};
+  }
+
   function initQuoteForm(form) {
     var button = form.querySelector('button[type="submit"]');
     var statusEl = document.createElement('p');
@@ -16,6 +51,8 @@
         phone: form.elements.phone.value,
         sqft: form.elements.sqft.value,
         notes: form.elements.notes.value,
+        utm: captureUtmParams(),
+        page_url: window.location.href,
       };
 
       button.disabled = true;
@@ -57,6 +94,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
+    captureUtmParams(); // persist UTM params from the landing page even if the form isn't on this page
     var forms = document.querySelectorAll('form[data-quote-form]');
     forms.forEach(initQuoteForm);
   });

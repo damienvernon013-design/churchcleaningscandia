@@ -41,6 +41,22 @@ CRM-QM `PushLead` endpoint via a Vercel serverless proxy:
   HTML; it now depends on Vercel serverless functions for the quote form to submit
   anywhere. If a different host is chosen, the function needs porting.
 
+## UTM tracking (added this session)
+
+Previously `utm_source` was hardcoded to `"churchcleaningscandia.com"` — no real
+attribution was captured. Now:
+
+- `quote-form.js` is loaded on all 43 pages and captures `utm_source`/`utm_medium`/
+  `utm_campaign`/`utm_term`/`utm_content` from the URL on landing, persisting them in
+  `sessionStorage` so attribution survives if the visitor browses to another page
+  before submitting the form.
+- The CRM's `PushLead` schema only has one `utm_source` text field, so `utm_source` is
+  passed through directly and the other four UTM params plus the landing page URL are
+  appended to `customer.notes` (see `api/README.md` for the exact format) so nothing is
+  silently dropped even without dedicated CRM fields.
+- No changes needed on your end beyond the existing `CRM_API_TOKEN` setup — this works
+  automatically once the site is deployed with UTM-tagged ad/campaign links.
+
 ## Outstanding / Next Steps
 
 - **Decide on real pricing and insurance figures.** Either supply actual `PRICE_LOW`/`PRICE_HIGH`/`INSURANCE_AMOUNT`/`BOND_AMOUNT`/`LICENSE_NO` values and insert them, or formally update `PLACEHOLDERS.md`/`QA.md` to reflect the "no hard numbers stated" approach as the final design decision (not a workaround). Right now the two docs contradict the actual site state.

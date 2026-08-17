@@ -13,6 +13,18 @@ function isValidPhone(phone) {
   return /^\+?[\d\s().-]{7,20}$/.test(phone);
 }
 
+function sanitizeUtm(utm) {
+  if (!utm || typeof utm !== 'object') return {};
+  const allowedKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content'];
+  const clean = {};
+  allowedKeys.forEach((key) => {
+    if (typeof utm[key] === 'string' && utm[key].trim()) {
+      clean[key] = utm[key].trim().slice(0, 255);
+    }
+  });
+  return clean;
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', 'https://churchcleaningscandia.com');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -36,7 +48,8 @@ module.exports = async (req, res) => {
   }
 
   const body = req.body || {};
-  const { name, org, phone, sqft, notes } = body;
+  const { name, org, phone, sqft, notes, page_url: pageUrl } = body;
+  const utm = sanitizeUtm(body.utm);
 
   if (typeof name !== 'string' || !name.trim()) {
     res.status(400).json({ error: 'Name is required' });
@@ -52,7 +65,21 @@ module.exports = async (req, res) => {
   }
 
   const { first_name, last_name } = splitName(name);
-  const combinedNotes = [org ? `Organization: ${org}` : null, sqft ? `Approx. size: ${sqft}` : null, notes]
+
+  // The CRM payload only has one utm_source text field, so secondary UTM params
+  // and the landing page URL are folded into notes rather than silently dropped.
+  const utmDetail = ['utm_medium', 'utm_campaign', 'utm_term', 'utm_content']
+    .filter((key) => utm[key])
+    .map((key) => `${key}=${utm[key]}`)
+    .join(' ');
+
+  const combinedNotes = [
+    org ? `Organization: ${org}` : null,
+    sqft ? `Approx. size: ${sqft}` : null,
+    notes,
+    utmDetail ? `UTM: ${utmDetail}` : null,
+    typeof pageUrl === 'string' && pageUrl ? `Landing page: ${pageUrl.slice(0, 300)}` : null,
+  ]
     .filter(Boolean)
     .join(' | ');
 
@@ -74,7 +101,7 @@ module.exports = async (req, res) => {
     questions: [],
     appointments: [],
     number_of_quotes: '1',
-    utm_source: 'churchcleaningscandia.com',
+    utm_source: utm.utm_source || 'churchcleaningscandia.com',
   };
 
   try {

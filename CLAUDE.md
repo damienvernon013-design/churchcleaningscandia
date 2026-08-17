@@ -12,6 +12,9 @@ Static HTML microsite for a church-cleaning service business serving Scandia, MN
   that proxies quote-form submissions to the CRM-QM `PushLead` API. See `api/README.md`.
   The CRM Bearer token lives only in Vercel's `CRM_API_TOKEN` env var — never in the repo
   or in client-side JS (`quote-form.js`).
+- `quote-form.js` is loaded on all 43 pages (not just the pages with a form) to capture
+  UTM params on landing and persist them in `sessionStorage`, since a visitor may land
+  via an ad on any page and submit the form later from a different one.
 
 ## Structure
 

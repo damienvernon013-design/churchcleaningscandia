@@ -12,16 +12,37 @@ variable and is the only thing that ever calls the CRM directly.
 
 ## Flow
 
-1. `quote-form.js` (loaded on `/`, `/contact/`, `/request-a-quote/`) intercepts the
-   quote form submit, and POSTs `{ name, org, phone, sqft, notes }` as JSON to
-   `/api/submit-quote`.
-2. `api/submit-quote.js` validates the payload, maps it into the CRM's expected
+1. `quote-form.js` is loaded on **every page** (not just the pages with a form) so it
+   can capture `utm_source`/`utm_medium`/`utm_campaign`/`utm_term`/`utm_content` from
+   the URL on first landing and persist them in `sessionStorage` — a visitor may land
+   on a service-area or resource page from an ad and only submit the form later, on a
+   different page, so capture can't be limited to the form pages.
+2. On submit, it intercepts the quote form and POSTs
+   `{ name, org, phone, sqft, notes, utm, page_url }` as JSON to `/api/submit-quote`,
+   where `utm` is whatever was captured in step 1 and `page_url` is the page the form
+   was submitted from.
+3. `api/submit-quote.js` validates the payload, maps it into the CRM's expected
    `PushLead` shape (industry code 23 = church/faith facility cleaning, zip defaulted
    to Scandia, MN 55073 since the form doesn't collect one), and forwards it to
    `https://thequotemasters.com/crm_api/api.php?action=push_lead` with the
    `Authorization: Bearer <token>` header attached server-side.
-3. The function returns `{ success: true }` or an error; the form shows an inline
+4. The function returns `{ success: true }` or an error; the form shows an inline
    status message.
+
+## UTM handling
+
+The CRM's `PushLead` payload only has a single `utm_source` text(255) field — there's
+no schema support for medium/campaign/term/content. To avoid silently dropping that
+data:
+
+- `utm_source` is passed through directly to the CRM's `utm_source` field (falls back
+  to `"churchcleaningscandia.com"` if the visit had no UTM params at all).
+- `utm_medium`, `utm_campaign`, `utm_term`, `utm_content`, and the landing page URL are
+  appended to `customer.notes` as `UTM: utm_medium=... utm_campaign=...` and
+  `Landing page: https://...` so a human reviewing the lead in the CRM can still see
+  full attribution, even though there's no dedicated field for it.
+- If the CRM's schema is later extended with more UTM fields, update
+  `api/submit-quote.js` to map them directly instead of folding into notes.
 
 ## Required environment variable
 
